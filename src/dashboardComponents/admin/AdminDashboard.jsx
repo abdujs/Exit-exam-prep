@@ -2,11 +2,13 @@ import React from 'react';
 import CourseList from './CourseList';
 import AddCourse from './AddCourse';
 import ManageDepartments from './ManageDepartments';
+import Logout from '../../authComponents/Logout'; // Import Logout component
 
 function AdminDashboard() {
   return (
     <div>
       <h1>Admin Dashboard</h1>
+      <Logout /> {/* Add Logout button */}
       <div>
         <h2>Manage Departments</h2>
         <ManageDepartments />
