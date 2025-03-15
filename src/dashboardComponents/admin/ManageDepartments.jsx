@@ -1,31 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../config/firebaseConfig'; // Ensure the correct path
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { getAllDepartments, addDepartment, deleteDepartment } from '../../services/departmentService';
+import { uploadFile } from '../../services/fileService'; // Import uploadFile function
 
 function ManageDepartments() {
   const [departments, setDepartments] = useState([]);
   const [newDepartment, setNewDepartment] = useState('');
-  
+  const [selectedFile, setSelectedFile] = useState(null);
+
   const fetchDepartments = async () => {
-    const departmentsCollection = collection(db, 'departments');
-    const departmentSnapshot = await getDocs(departmentsCollection);
-    const departmentList = departmentSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-    setDepartments(departmentList);
+    const data = await getAllDepartments();
+    setDepartments(data);
   };
 
-  const handleAddDepartment = async (e) => {
-    e.preventDefault();
-    await addDoc(collection(db, 'departments'), { name: newDepartment });
+  const handleAdd = async () => {
+    await addDepartment(newDepartment, "Description of the department");
     setNewDepartment('');
     fetchDepartments();
   };
 
-  const handleDeleteDepartment = async (id) => {
-    await deleteDoc(doc(db, 'departments', id));
+  const handleDelete = async (id) => {
+    await deleteDepartment(id);
     fetchDepartments();
+  };
+
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
+
+  const handleUpload = async (departmentId) => {
+    if (selectedFile) {
+      const url = await uploadFile(selectedFile);
+      // Save the URL to the department or course in your database
+      console.log(`File uploaded for department ${departmentId}: ${url}`);
+    }
   };
 
   useEffect(() => {
@@ -34,22 +41,21 @@ function ManageDepartments() {
 
   return (
     <div>
-      <h2>Manage Departments</h2>
-      <form onSubmit={handleAddDepartment}>
-        <input
-          type="text"
-          placeholder="Department Name"
-          value={newDepartment}
-          onChange={(e) => setNewDepartment(e.target.value)}
-          required
-        />
-        <button type="submit">Add Department</button>
-      </form>
+      <h1>Manage Departments</h1>
+      <input
+        type="text"
+        value={newDepartment}
+        onChange={(e) => setNewDepartment(e.target.value)}
+        placeholder="Department Name"
+      />
+      <button onClick={handleAdd}>Add Department</button>
       <ul>
-        {departments.map(department => (
-          <li key={department.id}>
-            {department.name}
-            <button onClick={() => handleDeleteDepartment(department.id)}>Delete</button>
+        {departments.map(dep => (
+          <li key={dep.id}>
+            {dep.name}
+            <button onClick={() => handleDelete(dep.id)}>Delete</button>
+            <input type="file" onChange={handleFileChange} />
+            <button onClick={() => handleUpload(dep.id)}>Upload PDF</button>
           </li>
         ))}
       </ul>
