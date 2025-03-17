@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
+import Modal from 'react-modal';
 import { auth, googleProvider, db } from '../config/firebaseConfig'; // Import Firestore
 import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { useAuth } from './AuthProvider';
 import { doc, setDoc } from 'firebase/firestore'; // Import Firestore functions
+import { Navigate } from 'react-router-dom'; // Import Navigate for redirection
 
-function Signup() {
+Modal.setAppElement('#root'); // Set the root element for accessibility
+
+function Signup({ isOpen, onRequestClose }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
-  const { setCurrentUser } = useAuth(); // Access global state updater
-  const [role, setRole] = useState('student'); // Default role is 'student'
+  const { currentUser, setCurrentUser } = useAuth(); // Access currentUser and global state updater
+  const [role] = useState('student'); // Default role is 'student'
 
   const handleSignup = (e) => {
     e.preventDefault();
@@ -23,7 +26,6 @@ function Signup() {
           role: role // Store the role in Firestore
         });
         setCurrentUser({ ...userCredential.user, role: role }); // Set current user with role
-        setSuccess(true);
       })
       .catch((error) => {
         console.error('Error:', error.message);
@@ -41,7 +43,6 @@ function Signup() {
           role: role // Store the role in Firestore
         });
         setCurrentUser({ ...result.user, role: role }); // Set current user with role
-        setSuccess(true);
       })
       .catch((error) => {
         console.error('Error:', error.message);
@@ -49,34 +50,36 @@ function Signup() {
       });
   };
 
+  if (currentUser) {
+    return <Navigate to={currentUser.role === 'admin' ? '/admin-dashboard' : '/student-dashboard'} />;
+  }
+
   return (
-    <div>
-      <h2>Signup</h2>
-      {success && <p>Account created successfully! Please login.</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleSignup}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <select value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="student">Student</option>
-          <option value="admin">Admin</option>
-        </select>
-        <button type="submit">Signup with Email</button>
-      </form>
-      <button onClick={handleGoogleSignup}>Signup with Google</button>
-    </div>
+    <Modal isOpen={isOpen} onRequestClose={onRequestClose} contentLabel="Signup Modal">
+      <div>
+        <h2>Signup</h2>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <form onSubmit={handleSignup}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          {/* Remove role selection */}
+          <button type="submit">Signup with Email</button>
+        </form>
+        <button onClick={handleGoogleSignup}>Signup with Google</button>
+      </div>
+    </Modal>
   );
 }
 

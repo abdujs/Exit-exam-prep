@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
+import Modal from 'react-modal';
 import { auth, googleProvider, db } from '../config/firebaseConfig'; // Import Firestore
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { useAuth } from './AuthProvider'; // Access the AuthProvider for global state
 import { Navigate } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore'; // Import Firestore functions
 
-function Login() {
+Modal.setAppElement('#root'); // Set the root element for accessibility
+
+function Login({ isOpen, onRequestClose }) {
   const { currentUser, setCurrentUser } = useAuth(); // Access currentUser and global state updater
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -49,28 +52,30 @@ function Login() {
   }
 
   return (
-    <div>
-      <h2>Login</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Login with Email</button>
-      </form>
-      <button onClick={handleGoogleLogin}>Login with Google</button>
-    </div>
+    <Modal isOpen={isOpen} onRequestClose={onRequestClose} contentLabel="Login Modal">
+      <div>
+        <h2>Login</h2>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <form onSubmit={handleLogin}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit">Login with Email</button>
+        </form>
+        <button onClick={handleGoogleLogin}>Login with Google</button>
+      </div>
+    </Modal>
   );
 }
 
