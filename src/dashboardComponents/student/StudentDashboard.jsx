@@ -18,9 +18,14 @@ function StudentDashboard() {
     setCourses(data);
   };
 
-  const handleEnroll = (departmentId) => {
+  const handleEnroll = async (departmentId) => {
+    // Ensure the student can only enroll in one department at a time
+    if (selectedDepartment) {
+      alert('You are already enrolled in a department.');
+      return;
+    }
     setSelectedDepartment(departmentId);
-    fetchCourses(departmentId);
+    await fetchCourses(departmentId);
   };
 
   useEffect(() => {
@@ -52,7 +57,9 @@ function StudentDashboard() {
             {courses.map(course => (
               <li key={course.id}>
                 {course.title} - {course.description}
-                <a href={course.contentUrl} target="_blank" rel="noopener noreferrer">View PDF</a>
+                {course.fileURL && (
+                  <a href={course.fileURL} target="_blank" rel="noopener noreferrer">View PDF</a>
+                )}
               </li>
             ))}
           </ul>
