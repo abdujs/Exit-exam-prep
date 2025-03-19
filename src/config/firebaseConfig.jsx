@@ -3,7 +3,6 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
 
 // Firebase Configuration (Using Environment Variables for Security)
 const firebaseConfig = {
@@ -22,6 +21,5 @@ const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 const db = getFirestore(app);
-const storage = getStorage(app); // Added Storage for PDFs
 
-export { app, analytics, auth, googleProvider, db, storage };
+export { app, analytics, auth, googleProvider, db };
