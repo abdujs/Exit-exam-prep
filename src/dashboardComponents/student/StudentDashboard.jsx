@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAllDepartments } from '../../services/departmentService';
 import { getCoursesByDepartment } from '../../services/courseService';
+import { updateProgress } from '../../services/progressService'; // Import progress service
 import Logout from '../../authComponents/Logout'; // Import Logout component
 
 function StudentDashboard() {
@@ -15,17 +16,22 @@ function StudentDashboard() {
 
   const fetchCourses = async (departmentId) => {
     const data = await getCoursesByDepartment(departmentId);
+    console.log('Fetched courses:', data); // Log the fetched courses
     setCourses(data);
   };
 
   const handleEnroll = async (departmentId) => {
-    // Ensure the student can only enroll in one department at a time
-    if (selectedDepartment) {
-      alert('You are already enrolled in a department.');
+    if (selectedDepartment === departmentId) {
+      alert('You are already enrolled in this department.');
       return;
     }
     setSelectedDepartment(departmentId);
     await fetchCourses(departmentId);
+  };
+
+  const handleMarkProgress = async (courseId, completedModules, totalModules) => {
+    await updateProgress(currentUser.uid, courseId, completedModules, totalModules);
+    alert('Progress updated!');
   };
 
   useEffect(() => {
@@ -54,14 +60,21 @@ function StudentDashboard() {
         <div style={{ marginTop: '20px' }}>
           <h2>Courses in {departments.find(dep => dep.id === selectedDepartment)?.name}</h2>
           <ul>
-            {courses.map(course => (
-              <li key={course.id}>
-                {course.title} - {course.description}
-                {course.fileURL && (
-                  <a href={course.fileURL} target="_blank" rel="noopener noreferrer">View PDF</a>
-                )}
-              </li>
-            ))}
+            {courses.map(course => {
+              const optimizedFileURL = `${course.fileURL}?q_auto`; // Append q_auto for optimization
+              console.log('Optimized Course fileURL:', optimizedFileURL); // Log the optimized fileURL
+              return (
+                <li key={course.id}>
+                  {course.title} - {course.description}
+                  {course.fileURL && (
+                    <a href={optimizedFileURL} target="_blank" rel="noopener noreferrer">
+                      View PDF
+                    </a>
+                  )}
+                  <button onClick={() => handleMarkProgress(course.id, 1, course.totalModules)}>Mark Progress</button>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
