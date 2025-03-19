@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { db } from '../../config/firebaseConfig'; // Ensure the correct path
+import { db } from '../../config/firebaseConfig';
 import { collection, addDoc, doc } from 'firebase/firestore';
-import { uploadFile } from '../../services/fileService'; // Import uploadFile function
+import { uploadFile } from '../../services/fileService';
+import { getCoursesByDepartment } from '../../services/courseService';
 
 function AddCourse({ departmentId, onCourseAdded }) {
   const [name, setName] = useState('');
@@ -16,19 +17,33 @@ function AddCourse({ departmentId, onCourseAdded }) {
   const handleAddCourse = async (e) => {
     e.preventDefault();
     try {
+      const existingCourses = await getCoursesByDepartment(departmentId);
+      if (existingCourses.length >= 18) {
+        setError('A department cannot have more than 18 courses.');
+        return;
+      }
       let fileURL = '';
       if (selectedFile) {
-        fileURL = await uploadFile(selectedFile, { name, description }, departmentId);
+        try {
+          fileURL = await uploadFile(selectedFile); // Upload file to Cloudinary
+        } catch (error) {
+          setError('Failed to upload file. Please try again.');
+          return;
+        }
       }
-      const departmentRef = doc(db, 'departments', departmentId);
-      await addDoc(collection(departmentRef, 'courses'), {
+      const departmentRef = doc(db, 'departments', departmentId); // Reference to the department
+      const coursesCollection = collection(departmentRef, 'courses'); // Subcollection under the department
+
+      await addDoc(coursesCollection, {
         name,
         description,
         fileURL,
       });
+
       setName('');
       setDescription('');
       setSelectedFile(null);
+      setError('');
       onCourseAdded(); // Notify parent to refresh the courses list
     } catch (error) {
       console.error('Error adding course:', error);
@@ -57,6 +72,7 @@ function AddCourse({ departmentId, onCourseAdded }) {
       <input
         type="file"
         onChange={handleFileChange}
+        required
       />
       <button type="submit">Add Course</button>
     </form>
