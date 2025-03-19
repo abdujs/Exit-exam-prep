@@ -13,7 +13,6 @@ function Signup({ isOpen, onRequestClose }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { currentUser, setCurrentUser } = useAuth(); // Access currentUser and global state updater
-  const [role] = useState('student'); // Default role is 'student'
 
   const handleSignup = (e) => {
     e.preventDefault();
@@ -21,11 +20,12 @@ function Signup({ isOpen, onRequestClose }) {
     createUserWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
         console.log('User Created:', userCredential.user);
+        const role = email === 'abdu12.aau@gmail.com' ? 'admin' : 'student'; // Assign role based on email
         await setDoc(doc(db, 'users', userCredential.user.uid), {
           email: userCredential.user.email,
-          role: role // Store the role in Firestore
+          role, // Use the determined role
         });
-        setCurrentUser({ ...userCredential.user, role: role }); // Set current user with role
+        setCurrentUser({ ...userCredential.user, role }); // Set current user with the determined role
       })
       .catch((error) => {
         console.error('Error:', error.message);
@@ -38,11 +38,12 @@ function Signup({ isOpen, onRequestClose }) {
     signInWithPopup(auth, googleProvider)
       .then(async (result) => {
         console.log('Google Sign-In Successful:', result.user);
+        const role = result.user.email === 'abdu12.aau@gmail.com' ? 'admin' : 'student'; // Assign role based on email
         await setDoc(doc(db, 'users', result.user.uid), {
           email: result.user.email,
-          role: role // Store the role in Firestore
+          role, // Use the determined role
         });
-        setCurrentUser({ ...result.user, role: role }); // Set current user with role
+        setCurrentUser({ ...result.user, role }); // Set current user with the determined role
       })
       .catch((error) => {
         console.error('Error:', error.message);
@@ -74,7 +75,6 @@ function Signup({ isOpen, onRequestClose }) {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          {/* Remove role selection */}
           <button type="submit">Signup with Email</button>
         </form>
         <button onClick={handleGoogleSignup}>Signup with Google</button>

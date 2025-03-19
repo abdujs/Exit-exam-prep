@@ -13,10 +13,12 @@ function Login({ isOpen, onRequestClose }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false); // Add loading state
 
   const handleLogin = (e) => {
     e.preventDefault();
     setError(''); // Clear previous errors
+    setLoading(true); // Set loading to true
     signInWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
         console.log('User Logged In:', userCredential.user);
@@ -28,11 +30,13 @@ function Login({ isOpen, onRequestClose }) {
       .catch((error) => {
         console.error('Error:', error.message);
         setError(error.message); // Display error message
-      });
+      })
+      .finally(() => setLoading(false)); // Reset loading state
   };
 
   const handleGoogleLogin = () => {
     setError('');
+    setLoading(true); // Set loading to true
     signInWithPopup(auth, googleProvider)
       .then(async (result) => {
         console.log('Google Sign-In Successful:', result.user);
@@ -44,7 +48,8 @@ function Login({ isOpen, onRequestClose }) {
       .catch((error) => {
         console.error('Error:', error.message);
         setError(error.message);
-      });
+      })
+      .finally(() => setLoading(false)); // Reset loading state
   };
 
   if (currentUser) {
@@ -56,6 +61,7 @@ function Login({ isOpen, onRequestClose }) {
       <div>
         <h2>Login</h2>
         {error && <p style={{ color: 'red' }}>{error}</p>}
+        {loading && <p>Loading...</p>} {/* Show loading indicator */}
         <form onSubmit={handleLogin}>
           <input
             type="email"
@@ -71,9 +77,9 @@ function Login({ isOpen, onRequestClose }) {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button type="submit">Login with Email</button>
+          <button type="submit" disabled={loading}>Login with Email</button>
         </form>
-        <button onClick={handleGoogleLogin}>Login with Google</button>
+        <button onClick={handleGoogleLogin} disabled={loading}>Login with Google</button>
       </div>
     </Modal>
   );

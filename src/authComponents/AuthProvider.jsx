@@ -32,6 +32,10 @@ function AuthProvider({ children }) {
     return unsubscribe; // Cleanup subscription on unmount
   }, []);
 
+  if (loading) {
+    return <div>Loading...</div>; // Show loading indicator
+  }
+
   const value = { currentUser, setCurrentUser };
 
   return (
