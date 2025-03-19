@@ -1,30 +1,48 @@
-import { storage } from '../config/firebaseConfig';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db } from '../config/firebaseConfig'; // Import Firestore
-import { collection, addDoc } from 'firebase/firestore'; // Import Firestore functions
+import axios from 'axios';
 
-// Upload a file to Firebase Storage and save course data to Firestore
-export const uploadFile = async (file, courseData, departmentId) => {
+// File upload service
+export const uploadFile = async (file) => {
   try {
-    const storageRef = ref(storage, `pdfs/${departmentId}/${file.name}`);
-    await uploadBytes(storageRef, file);
-    console.log('File uploaded to Firebase Storage');
-    const downloadURL = await getDownloadURL(storageRef);
-    console.log('Download URL:', downloadURL);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+    formData.append('resource_type', 'raw'); // Ensure the resource type is set to raw
 
-    // Save course data to Firestore
-    const courseCollectionRef = collection(db, 'courses');
-    await addDoc(courseCollectionRef, {
-      ...courseData,
-      fileURL: downloadURL,
-      departmentId,
-      createdAt: new Date()
-    });
-    console.log('File URL saved to Firestore');
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const apiEndpoint = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
 
-    return downloadURL;
+    const response = await axios.post(apiEndpoint, formData);
+
+    if (!response.data.secure_url) {
+      throw new Error('File upload failed: secure_url not returned');
+    }
+
+    console.log('File uploaded to Cloudinary:', response.data.secure_url);
+    return response.data.secure_url; // Return the uploaded file's URL
   } catch (error) {
-    console.error('Error uploading file:', error);
+    console.error('Error uploading file to Cloudinary:', error);
+    throw error;
+  }
+};
+
+// File deletion service
+export const deleteFile = async (fileURL) => {
+  try {
+    // Extract the public ID from the file URL
+    const publicId = fileURL.split('/').pop().split('.')[0]; // Extract filename without extension
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const apiEndpoint = `https://api.cloudinary.com/v1_1/${cloudName}/resources/image/upload`;
+
+    // Use the public ID to delete the file
+    await axios.delete(`${apiEndpoint}/${publicId}`, {
+      headers: {
+        Authorization: `Bearer ${import.meta.env.VITE_CLOUDINARY_API_KEY}`, // Ensure API key is set
+      },
+    });
+
+    console.log('File deleted from Cloudinary:', fileURL);
+  } catch (error) {
+    console.error('Error deleting file from Cloudinary:', error);
     throw error;
   }
 };
