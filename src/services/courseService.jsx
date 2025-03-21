@@ -30,13 +30,30 @@ export const getCoursesByDepartment = async (departmentId) => {
 };
 
 // Delete a course
-export const deleteCourse = async (courseId) => {
-  const courseDoc = await getDoc(doc(db, "courses", courseId));
-  if (courseDoc.exists()) {
-    const courseData = courseDoc.data();
-    if (courseData.fileURL) {
-      await deleteFile(courseData.fileURL); // Delete file from Cloudinary
+export const deleteCourse = async (departmentId, courseId) => {
+  try {
+    const departmentRef = doc(db, 'departments', departmentId); // Reference to the department
+    const courseRef = doc(collection(departmentRef, 'courses'), courseId); // Reference to the course in the subcollection
+
+    const courseDoc = await getDoc(courseRef);
+    if (courseDoc.exists()) {
+      const courseData = courseDoc.data();
+      if (courseData.publicId) {
+        console.log('Deleting file with publicId:', courseData.publicId); // Log the publicId
+        try {
+          await deleteFile(courseData.publicId); // Delete file from Cloudinary using publicId
+        } catch (error) {
+          console.error('Failed to delete file from Cloudinary:', error);
+        }
+      } else {
+        console.warn('No publicId found for the course. Skipping Cloudinary deletion.');
+      }
     }
+
+    await deleteDoc(courseRef); // Delete course from Firestore
+    console.log(`Course ${courseId} deleted successfully.`);
+  } catch (error) {
+    console.error('Error deleting course:', error);
+    throw error;
   }
-  await deleteDoc(doc(db, "courses", courseId)); // Delete course from Firestore
 };
