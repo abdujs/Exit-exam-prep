@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+const CLOUDINARY_API_BASE = `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}`;
+
 // File upload service
 export const uploadFile = async (file) => {
   try {
@@ -13,34 +15,40 @@ export const uploadFile = async (file) => {
 
     const response = await axios.post(apiEndpoint, formData);
 
-    if (!response.data.secure_url) {
-      throw new Error('File upload failed: secure_url not returned');
+    if (!response.data.secure_url || !response.data.public_id) {
+      throw new Error('File upload failed: secure_url or public_id not returned');
     }
 
-    console.log('File uploaded to Cloudinary:', response.data.secure_url);
-    return response.data.secure_url; // Return the uploaded file's URL
+    console.log('File uploaded to Cloudinary:', response.data.secure_url, response.data.public_id);
+    return { secureUrl: response.data.secure_url, publicId: response.data.public_id }; // Return both secure_url and public_id
   } catch (error) {
     console.error('Error uploading file to Cloudinary:', error);
     throw error;
   }
 };
 
-// File deletion service
-export const deleteFile = async (fileURL) => {
+// Delete a file from Cloudinary
+export const deleteFile = async (publicId) => {
   try {
-    // Extract the public ID from the file URL
-    const publicId = fileURL.split('/').pop().split('.')[0]; // Extract filename without extension
-    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-    const apiEndpoint = `https://api.cloudinary.com/v1_1/${cloudName}/resources/image/upload`;
+    console.log('Attempting to delete file with publicId:', publicId); // Log the publicId
+    const apiUrl = `${CLOUDINARY_API_BASE}/resources/image/upload`;
 
-    // Use the public ID to delete the file
-    await axios.delete(`${apiEndpoint}/${publicId}`, {
-      headers: {
-        Authorization: `Bearer ${import.meta.env.VITE_CLOUDINARY_API_KEY}`, // Ensure API key is set
+    // Make a DELETE request to Cloudinary
+    const response = await axios.delete(apiUrl, {
+      params: { public_id: publicId },
+      auth: {
+        username: import.meta.env.VITE_CLOUDINARY_API_KEY,
+        password: import.meta.env.VITE_CLOUDINARY_API_SECRET,
       },
     });
 
-    console.log('File deleted from Cloudinary:', fileURL);
+    console.log('Cloudinary response:', response.data); // Log the response from Cloudinary
+
+    if (response.status === 200) {
+      console.log('File deleted successfully from Cloudinary:', publicId);
+    } else {
+      console.error('Failed to delete file from Cloudinary:', response.data);
+    }
   } catch (error) {
     console.error('Error deleting file from Cloudinary:', error);
     throw error;
