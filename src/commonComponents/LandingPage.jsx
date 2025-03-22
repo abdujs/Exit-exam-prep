@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Navigate, Link } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../authComponents/AuthProvider'; // AuthProvider to access currentUser globally
 import Login from '../authComponents/Login';
 import Signup from '../authComponents/Signup';
@@ -19,10 +19,6 @@ function LandingPage() {
       {/* Navigation Bar */}
       <header style={{ padding: '10px', background: '#f5f5f5' }}>
         <h1>E-Learning Platform</h1>
-        <nav>
-          <button onClick={() => setIsLoginModalOpen(true)} style={{ marginRight: '10px' }}>Login</button>
-          <button onClick={() => setIsSignupModalOpen(true)}>Sign Up</button>
-        </nav>
       </header>
 
       {/* Main Content */}
