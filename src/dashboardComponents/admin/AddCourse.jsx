@@ -22,22 +22,25 @@ function AddCourse({ departmentId, onCourseAdded }) {
         setError('A department cannot have more than 18 courses.');
         return;
       }
-      let fileURL = '';
+
+      let fileData = { secureUrl: '', publicId: '' };
       if (selectedFile) {
         try {
-          fileURL = await uploadFile(selectedFile); // Upload file to Cloudinary
+          fileData = await uploadFile(selectedFile); // Upload file to Cloudinary
         } catch (error) {
           setError('Failed to upload file. Please try again.');
           return;
         }
       }
+
       const departmentRef = doc(db, 'departments', departmentId); // Reference to the department
       const coursesCollection = collection(departmentRef, 'courses'); // Subcollection under the department
 
       await addDoc(coursesCollection, {
         name,
         description,
-        fileURL,
+        fileURL: fileData.secureUrl, // Store the secure URL
+        publicId: fileData.publicId, // Store the public ID
       });
 
       setName('');
