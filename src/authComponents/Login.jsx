@@ -15,23 +15,27 @@ function Login({ isOpen, onRequestClose }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false); // Add loading state
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError(''); // Clear previous errors
     setLoading(true); // Set loading to true
-    signInWithEmailAndPassword(auth, email, password)
-      .then(async (userCredential) => {
-        console.log('User Logged In:', userCredential.user);
-        const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
-        if (userDoc.exists()) {
-          setCurrentUser({ ...userCredential.user, ...userDoc.data() }); // Merge user data with Firestore data
-        }
-      })
-      .catch((error) => {
-        console.error('Error:', error.message);
-        setError(error.message); // Display error message
-      })
-      .finally(() => setLoading(false)); // Reset loading state
+
+    try {
+      const userDoc = await getDoc(doc(db, 'users', email)); // Check if the user exists in Firestore
+      if (!userDoc.exists()) {
+        setError('User does not exist. Please sign up first.');
+        return;
+      }
+
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log('User Logged In:', userCredential.user);
+      setCurrentUser({ ...userCredential.user, ...userDoc.data() }); // Merge user data with Firestore data
+    } catch (error) {
+      console.error('Error:', error.message);
+      setError(error.message); // Display error message
+    } finally {
+      setLoading(false); // Reset loading state
+    }
   };
 
   const handleGoogleLogin = () => {
