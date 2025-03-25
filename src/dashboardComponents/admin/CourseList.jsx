@@ -1,29 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../config/firebaseConfig'; // Ensure the correct path
-import { collection, getDocs, doc, updateDoc } from 'firebase/firestore'; // Import updateDoc for editing courses
+import { db } from '../../config/firebaseConfig';
+import { collection, doc, updateDoc, onSnapshot } from 'firebase/firestore';
+import PDFViewer from '../../commonComponents/PDFViewer';
+import { deleteCourse } from '../../services/courseService';
 
 function CourseList({ departmentId, allowEdit }) {
   const [courses, setCourses] = useState([]);
-  const [editingCourse, setEditingCourse] = useState(null); // Track the course being edited
+  const [editingCourse, setEditingCourse] = useState(null);
   const [editedName, setEditedName] = useState('');
   const [editedDescription, setEditedDescription] = useState('');
+  const [selectedPDF, setSelectedPDF] = useState(null);
 
-  const fetchCourses = async () => {
-    try {
-      const departmentRef = doc(db, 'departments', departmentId); // Reference to the department
-      const coursesCollection = collection(departmentRef, 'courses'); // Subcollection under the department
-      const courseSnapshot = await getDocs(coursesCollection);
+  useEffect(() => {
+    if (!departmentId) return;
 
-      const courseList = courseSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+    const departmentRef = doc(db, 'departments', departmentId);
+    const coursesCollection = collection(departmentRef, 'courses');
+
+    const unsubscribe = onSnapshot(coursesCollection, (snapshot) => {
+      const courseList = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setCourses(courseList);
-    } catch (error) {
-      console.error('Error fetching courses:', error);
-      setCourses([]);
-    }
-  };
+    });
+
+    return () => unsubscribe(); // Cleanup listener on unmount
+  }, [departmentId]);
 
   const handleEdit = (course) => {
     setEditingCourse(course.id);
@@ -36,26 +36,38 @@ function CourseList({ departmentId, allowEdit }) {
       const departmentRef = doc(db, 'departments', departmentId);
       const courseRef = doc(collection(departmentRef, 'courses'), courseId);
       await updateDoc(courseRef, { name: editedName, description: editedDescription });
-      setCourses((prev) =>
-        prev.map((course) =>
-          course.id === courseId ? { ...course, name: editedName, description: editedDescription } : course
-        )
-      ); // Update state directly
       setEditingCourse(null);
     } catch (error) {
       console.error('Error updating course:', error);
     }
   };
 
-  useEffect(() => {
-    fetchCourses();
-  }, [departmentId]);
+  const handleDelete = async (courseId) => {
+    if (window.confirm('Are you sure you want to delete this course?')) {
+      try {
+        await deleteCourse(departmentId, courseId);
+      } catch (error) {
+        console.error('Error deleting course:', error);
+        alert('Failed to delete the course. Please try again.');
+      }
+    }
+  };
+
+  const handleNextCourse = () => {
+    const currentIndex = courses.findIndex((course) => course.fileURL === selectedPDF);
+    const nextCourse = courses[currentIndex + 1];
+    if (nextCourse) {
+      setSelectedPDF(nextCourse.fileURL);
+    } else {
+      alert('No more courses available.');
+    }
+  };
 
   return (
     <div>
       <h2>Courses</h2>
       <ul>
-        {courses.map(course => (
+        {courses.map((course) => (
           <li key={course.id}>
             {editingCourse === course.id ? (
               <div>
@@ -76,22 +88,30 @@ function CourseList({ departmentId, allowEdit }) {
               <div>
                 {course.name} - {course.description}
                 {allowEdit && (
-                  <button onClick={() => handleEdit(course)}>Edit</button>
+                  <>
+                    <button onClick={() => handleEdit(course)}>Edit</button>
+                    <button onClick={() => handleDelete(course.id)}>Delete</button>
+                  </>
                 )}
                 {course.fileURL && (
-                  <div>
-                    <a href={`${course.fileURL}?q_auto`} target="_blank" rel="noopener noreferrer">
-                      View PDF
-                    </a>
-                    {/* Optionally, embed the PDF */}
-                    {/* <iframe src={`${course.fileURL}?q_auto`} width="100%" height="500px"></iframe> */}
-                  </div>
+                  <button onClick={() => setSelectedPDF(course.fileURL)}>View PDF</button>
                 )}
               </div>
             )}
           </li>
         ))}
       </ul>
+
+      {selectedPDF && (
+        <div style={{ marginTop: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <button onClick={() => setSelectedPDF(null)}>Close Viewer</button>
+            <button onClick={handleNextCourse}>Next</button>
+          </div>
+          <h2>PDF Viewer</h2>
+          <PDFViewer fileUrl={selectedPDF} />
+        </div>
+      )}
     </div>
   );
 }
