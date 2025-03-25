@@ -3,7 +3,7 @@ import Modal from 'react-modal';
 import { auth, googleProvider, db } from '../config/firebaseConfig'; // Import Firestore
 import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { useAuth } from './AuthProvider';
-import { doc, setDoc } from 'firebase/firestore'; // Import Firestore functions
+import { doc, setDoc, getDoc } from 'firebase/firestore'; // Import Firestore functions
 import { Navigate } from 'react-router-dom'; // Import Navigate for redirection
 
 Modal.setAppElement('#root'); // Set the root element for accessibility
@@ -14,41 +14,50 @@ function Signup({ isOpen, onRequestClose }) {
   const [error, setError] = useState('');
   const { currentUser, setCurrentUser } = useAuth(); // Access currentUser and global state updater
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     setError('');
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(async (userCredential) => {
-        console.log('User Created:', userCredential.user);
-        const role = email === 'abdu12.aau@gmail.com' ? 'admin' : 'student'; // Assign role based on email
-        await setDoc(doc(db, 'users', userCredential.user.uid), {
-          email: userCredential.user.email,
-          role, // Use the determined role
-        });
-        setCurrentUser({ ...userCredential.user, role }); // Set current user with the determined role
-      })
-      .catch((error) => {
-        console.error('Error:', error.message);
-        setError(error.message);
+
+    try {
+      const userDoc = await getDoc(doc(db, 'users', email)); // Check if the user already exists
+      if (userDoc.exists()) {
+        setError('User already exists. Please log in.');
+        return;
+      }
+
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      console.log('User Created:', userCredential.user);
+      const role = email === 'abdu12.aau@gmail.com' ? 'admin' : 'student'; // Assign role based on email
+      await setDoc(doc(db, 'users', userCredential.user.uid), {
+        email: userCredential.user.email,
+        role, // Use the determined role
       });
+      setCurrentUser({ ...userCredential.user, role }); // Set current user with the determined role
+    } catch (error) {
+      console.error('Error:', error.message);
+      setError(error.message);
+    }
   };
 
-  const handleGoogleSignup = () => {
+  const handleGoogleSignup = async () => {
     setError('');
-    signInWithPopup(auth, googleProvider)
-      .then(async (result) => {
-        console.log('Google Sign-In Successful:', result.user);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      console.log('Google Sign-In Successful:', result.user);
+
+      const userDoc = await getDoc(doc(db, 'users', result.user.uid));
+      if (!userDoc.exists()) {
         const role = result.user.email === 'abdu12.aau@gmail.com' ? 'admin' : 'student'; // Assign role based on email
         await setDoc(doc(db, 'users', result.user.uid), {
           email: result.user.email,
           role, // Use the determined role
         });
-        setCurrentUser({ ...result.user, role }); // Set current user with the determined role
-      })
-      .catch((error) => {
-        console.error('Error:', error.message);
-        setError(error.message);
-      });
+      }
+      setCurrentUser({ ...result.user, ...userDoc.data() }); // Set current user with the determined role
+    } catch (error) {
+      console.error('Error:', error.message);
+      setError(error.message);
+    }
   };
 
   if (currentUser) {
@@ -75,7 +84,7 @@ function Signup({ isOpen, onRequestClose }) {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button type="submit">Signup with Email</button>
+          <button type="submit">Signup</button>
         </form>
         <button onClick={handleGoogleSignup}>Signup with Google</button>
       </div>
