@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAllDepartments, addDepartment, deleteDepartment } from '../../services/departmentService';
+import { onSnapshot, collection } from 'firebase/firestore';
+import { db } from '../../config/firebaseConfig';
 
 function ManageDepartments({ onDepartmentCreated, onDepartmentEdit }) {
   const [departments, setDepartments] = useState([]);
@@ -7,10 +9,14 @@ function ManageDepartments({ onDepartmentCreated, onDepartmentEdit }) {
   const [newDescription, setNewDescription] = useState(''); // State for department description
   const [error, setError] = useState('');
 
-  const fetchDepartments = async () => {
-    const data = await getAllDepartments();
-    setDepartments(data);
-  };
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, 'departments'), (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setDepartments(data);
+    });
+
+    return () => unsubscribe(); // Cleanup listener on unmount
+  }, []);
 
   const handleAdd = async () => {
     if (!newDepartment.trim() || !newDescription.trim()) {
@@ -19,7 +25,6 @@ function ManageDepartments({ onDepartmentCreated, onDepartmentEdit }) {
     }
     try {
       const departmentId = await addDepartment(newDepartment, newDescription);
-      setDepartments((prev) => [...prev, { id: departmentId, name: newDepartment, description: newDescription }]); // Update state directly
       setNewDepartment('');
       setNewDescription('');
       setError('');
@@ -31,18 +36,15 @@ function ManageDepartments({ onDepartmentCreated, onDepartmentEdit }) {
   };
 
   const handleDelete = async (id) => {
-    try {
-      await deleteDepartment(id);
-      setDepartments((prev) => prev.filter((dep) => dep.id !== id)); // Remove from state directly
-    } catch (error) {
-      console.error('Error deleting department:', error);
-      setError('Failed to delete department. Please try again.');
+    if (window.confirm('Are you sure you want to delete this department?')) {
+      try {
+        await deleteDepartment(id);
+      } catch (error) {
+        console.error('Error deleting department:', error);
+        setError('Failed to delete department. Please try again.');
+      }
     }
   };
-
-  useEffect(() => {
-    fetchDepartments();
-  }, []);
 
   return (
     <div>
@@ -62,7 +64,7 @@ function ManageDepartments({ onDepartmentCreated, onDepartmentEdit }) {
       />
       <button onClick={handleAdd}>Add Department</button>
       <ul>
-        {departments.map(dep => (
+        {departments.map((dep) => (
           <li key={dep.id}>
             {dep.name}
             <button onClick={() => handleDelete(dep.id)}>Delete</button>
