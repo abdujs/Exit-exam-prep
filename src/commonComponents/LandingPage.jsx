@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../authComponents/AuthProvider'; // AuthProvider to access currentUser globally
 import Login from '../authComponents/Login';
 import Signup from '../authComponents/Signup';
+import './LandingPage.css'; // Import CSS for styling
 
 function LandingPage() {
   const { currentUser } = useAuth(); // Get the current user from AuthProvider
@@ -15,25 +16,44 @@ function LandingPage() {
   }
 
   return (
-    <div>
-      {/* Navigation Bar */}
-      <header style={{ padding: '10px', background: '#f5f5f5' }}>
-        <h1>E-Learning Platform</h1>
+    <div className="landing-page">
+      {/* Header */}
+      <header className="landing-header">
+        <h1 className="logo">E-Learning Platform</h1>
+        <div className="auth-buttons">
+          <button onClick={() => setIsLoginModalOpen(true)} className="btn btn-primary">Login</button>
+          <button onClick={() => setIsSignupModalOpen(true)} className="btn btn-secondary">Sign Up</button>
+        </div>
       </header>
 
-      {/* Main Content */}
-      <main style={{ textAlign: 'center', margin: '50px 20px' }}>
+      {/* Hero Section */}
+      <section className="hero-section">
         <h2>Welcome to the E-Learning Platform</h2>
-        <p>Your one-stop destination for learning and growth.</p>
-        <div style={{ margin: '20px 0' }}>
-          <button onClick={() => setIsLoginModalOpen(true)} style={{ marginRight: '10px' }}>Login</button>
-          <button onClick={() => setIsSignupModalOpen(true)}>Sign Up</button>
+        <p>Empower your learning journey with our comprehensive courses and resources.</p>
+        <button onClick={() => setIsSignupModalOpen(true)} className="btn btn-cta">Get Started</button>
+      </section>
+
+      {/* Features Section */}
+      <section className="features-section">
+        <h3>Why Choose Us?</h3>
+        <div className="features">
+          <div className="feature">
+            <h4>Expert Instructors</h4>
+            <p>Learn from industry experts with years of experience.</p>
+          </div>
+          <div className="feature">
+            <h4>Flexible Learning</h4>
+            <p>Access courses anytime, anywhere, at your own pace.</p>
+          </div>
+          <div className="feature">
+            <h4>Comprehensive Resources</h4>
+            <p>Get access to a wide range of learning materials and tools.</p>
+          </div>
         </div>
-        <p>Explore our platform to enhance your skills and knowledge.</p>
-      </main>
+      </section>
 
       {/* Footer */}
-      <footer style={{ background: '#f5f5f5', padding: '10px', textAlign: 'center' }}>
+      <footer className="landing-footer">
         <p>© {new Date().getFullYear()} E-Learning Platform. All rights reserved.</p>
       </footer>
 
