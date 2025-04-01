@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
+import './AuthCard.css'; // Import shared styles for login and signup cards
 import { auth, googleProvider, db } from '../config/firebaseConfig'; // Import Firestore
 import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { useAuth } from './AuthProvider';
@@ -9,10 +10,13 @@ import { Navigate } from 'react-router-dom'; // Import Navigate for redirection
 Modal.setAppElement('#root'); // Set the root element for accessibility
 
 function Signup({ isOpen, onRequestClose }) {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { currentUser, setCurrentUser } = useAuth(); // Access currentUser and global state updater
+
+  if (!isOpen) return null;
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -65,11 +69,19 @@ function Signup({ isOpen, onRequestClose }) {
   }
 
   return (
-    <Modal isOpen={isOpen} onRequestClose={onRequestClose} contentLabel="Signup Modal">
-      <div>
-        <h2>Signup</h2>
+    <div className="auth-modal">
+      <div className="auth-card">
+        <button className="close-btn" onClick={onRequestClose}>×</button>
+        <h2>Sign Up</h2>
         {error && <p style={{ color: 'red' }}>{error}</p>}
         <form onSubmit={handleSignup}>
+          <input
+            type="text"
+            placeholder="Full Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
           <input
             type="email"
             placeholder="Email"
@@ -84,11 +96,14 @@ function Signup({ isOpen, onRequestClose }) {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button type="submit">Signup</button>
+          <button type="submit" className="btn btn-primary">Sign Up</button>
         </form>
-        <button onClick={handleGoogleSignup}>Signup with Google</button>
+        <button onClick={handleGoogleSignup} className="btn btn-secondary">Signup with Google</button>
+        <p className="auth-footer">
+          Already have an account? <span onClick={onRequestClose}>Login</span>
+        </p>
       </div>
-    </Modal>
+    </div>
   );
 }
 
