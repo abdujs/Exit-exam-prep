@@ -81,20 +81,20 @@ function CourseList({ departmentId, allowEdit }) {
                   value={editedDescription}
                   onChange={(e) => setEditedDescription(e.target.value)}
                 />
-                <button onClick={() => handleSave(course.id)}>Save</button>
-                <button onClick={() => setEditingCourse(null)}>Cancel</button>
+                <button onClick={() => handleSave(course.id)} className="btn btn-primary">Save</button>
+                <button onClick={() => setEditingCourse(null)} className="btn btn-secondary">Cancel</button>
               </div>
             ) : (
               <div>
                 {course.name} - {course.description}
                 {allowEdit && (
                   <>
-                    <button onClick={() => handleEdit(course)}>Edit</button>
-                    <button onClick={() => handleDelete(course.id)}>Delete</button>
+                    <button onClick={() => handleEdit(course)} className="btn btn-edit">Edit</button>
+                    <button onClick={() => handleDelete(course.id)} className="btn btn-delete">Delete</button>
                   </>
                 )}
                 {course.fileURL && (
-                  <button onClick={() => setSelectedPDF(course.fileURL)}>View PDF</button>
+                  <button onClick={() => setSelectedPDF(course.fileURL)} className="btn btn-secondary">View PDF</button>
                 )}
               </div>
             )}
@@ -105,8 +105,8 @@ function CourseList({ departmentId, allowEdit }) {
       {selectedPDF && (
         <div style={{ marginTop: '20px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <button onClick={() => setSelectedPDF(null)}>Close Viewer</button>
-            <button onClick={handleNextCourse}>Next</button>
+            <button onClick={() => setSelectedPDF(null)} className="btn btn-secondary">Close Viewer</button>
+            <button onClick={handleNextCourse} className="btn btn-primary">Next</button>
           </div>
           <h2>PDF Viewer</h2>
           <PDFViewer fileUrl={selectedPDF} />
