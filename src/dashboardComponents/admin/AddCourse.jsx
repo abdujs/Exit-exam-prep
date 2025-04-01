@@ -77,7 +77,7 @@ function AddCourse({ departmentId, onCourseAdded }) {
         onChange={handleFileChange}
         required
       />
-      <button type="submit">Add Course</button>
+      <button type="submit" className="btn btn-primary">Add Course</button>
     </form>
   );
 }
