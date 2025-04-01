@@ -1,72 +1,24 @@
 import React, { useState } from 'react';
-import Modal from 'react-modal';
-import { auth, googleProvider, db } from '../config/firebaseConfig'; // Import Firestore
-import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { useAuth } from './AuthProvider'; // Access the AuthProvider for global state
-import { Navigate } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore'; // Import Firestore functions
-
-Modal.setAppElement('#root'); // Set the root element for accessibility
+import './AuthCard.css'; // Import shared styles for login and signup cards
 
 function Login({ isOpen, onRequestClose }) {
-  const { currentUser, setCurrentUser } = useAuth(); // Access currentUser and global state updater
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); // Add loading state
 
-  const handleLogin = async (e) => {
+  if (!isOpen) return null;
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setError(''); // Clear previous errors
-    setLoading(true); // Set loading to true
-
-    try {
-      const userDoc = await getDoc(doc(db, 'users', email)); // Check if the user exists in Firestore
-      if (!userDoc.exists()) {
-        setError('User does not exist. Please sign up first.');
-        return;
-      }
-
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log('User Logged In:', userCredential.user);
-      setCurrentUser({ ...userCredential.user, ...userDoc.data() }); // Merge user data with Firestore data
-    } catch (error) {
-      console.error('Error:', error.message);
-      setError(error.message); // Display error message
-    } finally {
-      setLoading(false); // Reset loading state
-    }
+    // Handle login logic here
+    console.log('Logging in with:', { email, password });
   };
-
-  const handleGoogleLogin = () => {
-    setError('');
-    setLoading(true); // Set loading to true
-    signInWithPopup(auth, googleProvider)
-      .then(async (result) => {
-        console.log('Google Sign-In Successful:', result.user);
-        const userDoc = await getDoc(doc(db, 'users', result.user.uid));
-        if (userDoc.exists()) {
-          setCurrentUser({ ...result.user, ...userDoc.data() }); // Merge user data with Firestore data
-        }
-      })
-      .catch((error) => {
-        console.error('Error:', error.message);
-        setError(error.message);
-      })
-      .finally(() => setLoading(false)); // Reset loading state
-  };
-
-  if (currentUser) {
-    return <Navigate to={currentUser.role === 'admin' ? '/admin-dashboard' : '/student-dashboard'} />;
-  }
 
   return (
-    <Modal isOpen={isOpen} onRequestClose={onRequestClose} contentLabel="Login Modal">
-      <div>
+    <div className="auth-modal">
+      <div className="auth-card">
+        <button className="close-btn btn btn-primary" onClick={onRequestClose}>×</button>
         <h2>Login</h2>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        {loading && <p>Loading...</p>} {/* Show loading indicator */}
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleSubmit}>
           <input
             type="email"
             placeholder="Email"
@@ -81,11 +33,13 @@ function Login({ isOpen, onRequestClose }) {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button type="submit" disabled={loading}>Login with Email</button>
+          <button type="submit" className="btn btn-primary">Login</button>
         </form>
-        <button onClick={handleGoogleLogin} disabled={loading}>Login with Google</button>
+        <p className="auth-footer">
+          Don't have an account? <span onClick={onRequestClose}>Sign Up</span>
+        </p>
       </div>
-    </Modal>
+    </div>
   );
 }
 
