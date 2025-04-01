@@ -62,13 +62,13 @@ function ManageDepartments({ onDepartmentCreated, onDepartmentEdit }) {
         onChange={(e) => setNewDescription(e.target.value)}
         placeholder="Department Description"
       />
-      <button onClick={handleAdd}>Add Department</button>
+      <button onClick={handleAdd} className="btn btn-primary">Add Department</button>
       <ul>
         {departments.map((dep) => (
           <li key={dep.id}>
             {dep.name}
-            <button onClick={() => handleDelete(dep.id)}>Delete</button>
-            <button onClick={() => onDepartmentEdit(dep.id)}>Edit</button> {/* Edit button */}
+            <button onClick={() => handleDelete(dep.id)} className="btn btn-delete">Delete</button>
+            <button onClick={() => onDepartmentEdit(dep.id)} className="btn btn-edit">Edit</button>
           </li>
         ))}
       </ul>
