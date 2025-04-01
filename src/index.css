@@ -2,13 +2,13 @@
 
 /* Shared Button Styles */
 button {
-  padding: 12px 25px; /* Increased padding for better appearance */
-  font-size: 16px;
+  padding: 8px 15px; /* Reduced padding for smaller buttons */
+  font-size: 14px; /* Reduced font size */
   border: none;
-  border-radius: 6px; /* Slightly rounded corners */
+  border-radius: 4px; /* Slightly rounded corners */
   cursor: pointer;
   transition: background-color 0.3s ease, opacity 0.3s ease;
-  margin: 5px; /* Added margin for spacing between buttons */
+  margin: 3px; /* Reduced margin for tighter spacing */
 }
 
 button:hover {
