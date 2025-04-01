@@ -7,6 +7,7 @@ import AdminDashboard from './dashboardComponents/admin/AdminDashboard'; // Admi
 import StudentDashboard from './dashboardComponents/student/StudentDashboard'; // Student dashboard
 import ProtectedRoute from './commonComponents/ProtectedRoute'; // Protected route component
 import { AuthProvider } from './authComponents/AuthProvider'; // Import AuthProvider
+import CoursePage from './dashboardComponents/student/CoursePage'; // Import the new CoursePage component
 
 function App() {
   return (
@@ -35,6 +36,16 @@ function App() {
             element={
               <ProtectedRoute role="student">
                 <StudentDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Course Page - Protected */}
+          <Route
+            path="/courses/:departmentId"
+            element={
+              <ProtectedRoute role="student">
+                <CoursePage />
               </ProtectedRoute>
             }
           />
