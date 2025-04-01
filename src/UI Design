@@ -1,0 +1,87 @@
+🖥️ UI Design Outline for Minimalist E-Learning Web App
+1️⃣ Login Page
+Purpose: Authenticate users and redirect based on role.
+
+UI Elements:
+
+Email Input (Text Field)
+Password Input (Password Field)
+Login Button (Primary Button)
+Sign-up Link (Optional for student registration)
+Design:
+
+Clean background with minimal distractions.
+Centered login card with soft shadows.
+Clear role-based redirection message (e.g., "Admin Login" / "Student Login").
+2️⃣ Admin Dashboard
+Purpose: Manage departments, courses, and student progress.
+
+UI Elements:
+
+Sidebar Navigation
+➤ Dashboard (Home)
+➤ Departments
+    ➤ Courses
+➤ Student Progress
+Main Panel (Content Area)
+Add Department Button
+Add Course Button
+Table View for departments and courses with actions:
+➤ Edit
+➤ Delete
+Progress Table: Student Name | Course | % Completed
+Design:
+
+Clean, grid-based layout.
+Use cards for department/course entries.
+Soft shadows and rounded corners for a modern look.
+3️⃣ Student Dashboard
+Purpose: View available departments, enroll, access content, and track progress.
+
+UI Elements:
+
+Sidebar Navigation
+➤ My Courses
+➤ Progress
+Main Panel (Content Area)
+List of Departments with an Enroll Button
+Expandable Course List within each enrolled department
+Each course card displays:
+Title
+Description
+View PDF Button
+Checklist Component for tracking progress.
+Design:
+
+Use collapsible cards for department/course organization.
+Include progress bars for visual clarity.
+4️⃣ Course Details Page
+Purpose: Display course content with PDF access and progress tracking.
+
+UI Elements:
+
+Course Title & Description
+Download PDF Button
+Progress Checklist (e.g., Module 1, Module 2)
+Design:
+
+Clean content focus with large fonts and ample white space.
+5️⃣ Quiz Page (Optional)
+Purpose: Deliver simple quizzes for student assessments.
+
+UI Elements:
+
+Question Display
+Multiple-Choice Options (Radio Buttons)
+Submit Button
+Score Display after submission
+Design:
+
+One question per screen with "Next" and "Previous" navigation.
+Clean typography and clear answer selection.
+6️⃣ General UI Design Guidelines
+✅ Use Tailwind CSS for fast and consistent styling.
+✅ Prioritize white space and clean typography for readability.
+✅ Maintain a 2-color palette for minimalism — e.g., Blue (Primary) and Grey (Neutral).
+✅ Employ cards, tables, and progress bars for organized content.
+✅ Use icons for intuitive navigation (e.g., Lucide Icons).
