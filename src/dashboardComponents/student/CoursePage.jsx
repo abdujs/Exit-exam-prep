@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getCoursesByDepartment } from '../../services/courseService';
-import PDFViewer from '../../commonComponents/PDFViewer';
+import PDFViewer from '../../src/commonComponents/PDFViewer'; // Updated import path
 import './CoursePage.css';
 
 function CoursePage() {
