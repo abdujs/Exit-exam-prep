@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getCoursesByDepartment } from '../../services/courseService';
-import PDFViewer from '../../commonComponents/PDFViewer';
+import PdfViewer from '../../commonComponents/PdfViewer';
 import './CoursePage.css';
 
 function CoursePage() {
@@ -64,7 +64,7 @@ function CoursePage() {
               Next
             </button>
           </div>
-          <PDFViewer fileUrl={selectedPDF} />
+          <PdfViewer fileUrl={selectedPDF} />
         </div>
       )}
     </div>
