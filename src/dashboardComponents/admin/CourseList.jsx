@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../config/firebaseConfig';
 import { collection, doc, updateDoc, onSnapshot } from 'firebase/firestore';
-import PDFViewer from '../../commonComponents/PDFViewer';
+import PDFViewer from '../../commonComponents/PdfViewer';
 import { deleteCourse } from '../../services/courseService';
 
 function CourseList({ departmentId, allowEdit }) {
