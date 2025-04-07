@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../authComponents/AuthProvider'; // AuthProvider to access currentUser globally
+import { useAuth } from '../authComponents/AuthProvider';
 import Login from '../authComponents/Login';
 import Signup from '../authComponents/Signup';
-import './LandingPage.css'; // Import CSS for styling
+import './LandingPage.css';
 
 function LandingPage() {
-  const { currentUser } = useAuth(); // Get the current user from AuthProvider
+  const { currentUser } = useAuth();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
 
-  // Redirect logged-in users to the appropriate dashboard
   if (currentUser) {
     return <Navigate to={currentUser.role === 'admin' ? '/admin-dashboard' : '/student-dashboard'} />;
   }
@@ -28,32 +27,37 @@ function LandingPage() {
 
       {/* Hero Section */}
       <section className="hero-section">
-        <h2>Welcome to the E-Learning Platform</h2>
-        <p>Empower your learning journey with our comprehensive courses and resources.</p>
-        <button onClick={() => setIsSignupModalOpen(true)} className="btn btn-cta">Get Started</button>
+        <h2>Master Your Exit Exam with Confidence!</h2>
+        <p>An adaptive learning platform designed for Ethiopian university students to excel in their final exams.</p>
+        <button onClick={() => setIsSignupModalOpen(true)} className="btn btn-cta">Start Learning Now</button>
       </section>
 
-      {/* Features Section */}
+      {/* Key Features Section */}
       <section className="features-section">
-        <h3>Why Choose Us?</h3>
+        <h3>Key Features</h3>
         <div className="features">
           <div className="feature">
-            <h4>Expert Instructors</h4>
-            <p>Learn from industry experts with years of experience.</p>
+            <h4>Mock Exams & Past Questions</h4>
+            <p>Practice with real past questions to prepare effectively.</p>
           </div>
           <div className="feature">
-            <h4>Flexible Learning</h4>
-            <p>Access courses anytime, anywhere, at your own pace.</p>
+            <h4>Easy Access to Study Materials</h4>
+            <p>Get quick and seamless access to all the resources you need.</p>
           </div>
           <div className="feature">
-            <h4>Comprehensive Resources</h4>
-            <p>Get access to a wide range of learning materials and tools.</p>
+            <h4>Time-Saving Structured Exam Preparation</h4>
+            <p>Prepare efficiently with a structured approach tailored to each department.</p>
           </div>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="landing-footer">
+        <div className="footer-links">
+          <a href="#about">About Us</a>
+          <a href="#contact">Contact</a>
+          <a href="#privacy">Privacy Policy</a>
+        </div>
         <p>© {new Date().getFullYear()} E-Learning Platform. All rights reserved.</p>
       </footer>
 
