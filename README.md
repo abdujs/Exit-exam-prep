@@ -1,6 +1,4 @@
-Here’s a suggested README.md content for your project:
 
----
 
 # **E-Learning Platform**
 
