@@ -28,7 +28,7 @@ This is a feature-rich e-learning platform designed for students and administrat
 
 ## **File Structure**
 
-### **Frontend**
+
 ```
 src/
 ├── authComponents/       # Authentication-related components
