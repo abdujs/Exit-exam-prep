@@ -6,7 +6,7 @@
 This is a feature-rich e-learning platform designed for students and administrators. The platform allows students to enroll in departments, access course materials, and take tests. Administrators can manage departments, courses, and track student progress.
 
 ---
-
+ 
 ## **Features**
 
 ### **Student Features**
